@@ -1,10 +1,10 @@
-import './App.css';
-import Task from './components/task.js';
-import AddTaskForm from './components/Form'; 
 import React, { useState } from 'react';
-import { v4 as uuidv4 } from 'uuid'; 
+import Task from './components/task';
+import AddTaskForm from './components/Form';
+import { v4 as uuidv4 } from 'uuid';
+import './App.css';
 
-function App(props) {
+function App() {
   const [taskState, setTaskState] = useState({
     tasks: [
       { id: 1, title: "Dishes", description: "Empty dishwasher", deadline: "Today", done: false },
@@ -13,23 +13,23 @@ function App(props) {
     ]
   });
 
+  const doneHandler = (taskIndex) => {
+    const tasks = [...taskState.tasks];
+    tasks[taskIndex].done = !tasks[taskIndex].done;
+    setTaskState({ tasks });
+  }
+
+  const deleteHandler = (taskIndex) => {
+    const tasks = [...taskState.tasks];
+    tasks.splice(taskIndex, 1);
+    setTaskState({ tasks });
+  }
+
   const [formState, setFormState] = useState({
     title: "",
     description: "",
     deadline: ""
   });
-
-  const doneHandler = (taskIndex) => {
-    const updatedTasks = [...taskState.tasks];
-    updatedTasks[taskIndex].done = !updatedTasks[taskIndex].done;
-    setTaskState({ tasks: updatedTasks });
-  };
-
-  const deleteHandler = (taskIndex) => {
-    const updatedTasks = [...taskState.tasks];
-    updatedTasks.splice(taskIndex, 1);
-    setTaskState({ tasks: updatedTasks });
-  };
 
   const formChangeHandler = (event) => {
     let form = { ...formState };
@@ -48,7 +48,7 @@ function App(props) {
         form = formState;
     }
     setFormState(form);
-  };
+  }
 
   const formSubmitHandler = (event) => {
     event.preventDefault();
@@ -56,12 +56,18 @@ function App(props) {
     const tasks = [...taskState.tasks];
     const form = { ...formState };
 
-   
     form.id = uuidv4();
 
     tasks.push(form);
     setTaskState({ tasks });
-  };
+
+    // Clear the form fields after submission
+    setFormState({
+      title: "",
+      description: "",
+      deadline: ""
+    });
+  }
 
   return (
     <div className="container">
@@ -77,7 +83,11 @@ function App(props) {
           deleteTask={() => deleteHandler(index)}
         />
       ))}
-      <AddTaskForm submit={formSubmitHandler} change={formChangeHandler} /> {/* Add the Form component here */}
+      <AddTaskForm
+        submit={formSubmitHandler}
+        change={formChangeHandler}
+        formState={formState}
+      />
     </div>
   );
 }
