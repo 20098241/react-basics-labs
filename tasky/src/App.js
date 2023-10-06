@@ -1,7 +1,8 @@
 import './App.css';
 import Task from './components/task.js';
-import AddTaskForm from './components/Form'; // Import the Form component
+import AddTaskForm from './components/Form'; 
 import React, { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid'; 
 
 function App(props) {
   const [taskState, setTaskState] = useState({
@@ -10,6 +11,12 @@ function App(props) {
       { id: 2, title: "Laundry", description: "Fold clothes and put away", deadline: "Tomorrow", done: false },
       { id: 3, title: "Tidy up", deadline: "Today", done: false }
     ]
+  });
+
+  const [formState, setFormState] = useState({
+    title: "",
+    description: "",
+    deadline: ""
   });
 
   const doneHandler = (taskIndex) => {
@@ -24,22 +31,36 @@ function App(props) {
     setTaskState({ tasks: updatedTasks });
   };
 
-  const addTaskHandler = (newTask) => {
-    // Generate a unique ID for the new task
-    const newTaskId = Math.max(...taskState.tasks.map((task) => task.id), 0) + 1;
-    
-    // Create a new task object
-    const taskToAdd = {
-      id: newTaskId,
-      title: newTask.title,
-      description: newTask.description,
-      deadline: newTask.deadline,
-      done: false,
-    };
+  const formChangeHandler = (event) => {
+    let form = { ...formState };
 
-    // Update the state with the new task
-    const updatedTasks = [...taskState.tasks, taskToAdd];
-    setTaskState({ tasks: updatedTasks });
+    switch (event.target.name) {
+      case "title":
+        form.title = event.target.value;
+        break;
+      case "description":
+        form.description = event.target.value;
+        break;
+      case "deadline":
+        form.deadline = event.target.value;
+        break;
+      default:
+        form = formState;
+    }
+    setFormState(form);
+  };
+
+  const formSubmitHandler = (event) => {
+    event.preventDefault();
+
+    const tasks = [...taskState.tasks];
+    const form = { ...formState };
+
+   
+    form.id = uuidv4();
+
+    tasks.push(form);
+    setTaskState({ tasks });
   };
 
   return (
@@ -56,11 +77,7 @@ function App(props) {
           deleteTask={() => deleteHandler(index)}
         />
       ))}
-      <AddTaskForm onAddTask={addTaskHandler} /> const [ formState, setFormState ] = useState({
-    title: "",
-    description: "",
-    deadline: ""
-  });
+      <AddTaskForm submit={formSubmitHandler} change={formChangeHandler} /> {/* Add the Form component here */}
     </div>
   );
 }
